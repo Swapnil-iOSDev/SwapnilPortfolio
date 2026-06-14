@@ -3,635 +3,532 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Swapnil Christian – iOS Developer</title>
+  <title>Swapnil Christian — iOS Developer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    /* ===== TOKENS ===== */
     :root {
-      --bg: #02040a;
-      --surface: #080d18;
-      --card: #0c1422;
-      --cyan: #00d4ff;
-      --purple: #7c3aed;
-      --pink: #ec4899;
-      --green: #10b981;
-      --orange: #f97316;
-      --white: #f1f5f9;
-      --muted: #334155;
-      --text: #94a3b8;
+      --void: #050507;
+      --deep: #0a0a0f;
+      --layer: #0f0f17;
+      --card: #13131e;
+      --border: rgba(255,255,255,0.06);
+      --border-hi: rgba(91,79,255,0.4);
+      --indigo: #5B4FFF;
+      --indigo-glow: rgba(91,79,255,0.35);
+      --magenta: #FF2D78;
+      --magenta-glow: rgba(255,45,120,0.3);
+      --white: #F5F5FF;
+      --muted: #3A3A50;
+      --text: #8888AA;
+      --green: #00E5A0;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-
+    html { scroll-behavior: smooth; scroll-padding-top: 70px; }
     body {
-      background: var(--bg);
+      background: var(--void);
       color: var(--text);
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--font-body);
       overflow-x: hidden;
       cursor: none;
     }
-
-    /* CUSTOM CURSOR */
-    .cursor {
-      position: fixed; z-index: 9999;
-      width: 12px; height: 12px;
-      background: var(--cyan);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s, width 0.3s, height 0.3s, opacity 0.3s;
-      mix-blend-mode: screen;
-    }
-    .cursor-ring {
-      position: fixed; z-index: 9998;
-      width: 40px; height: 40px;
-      border: 1px solid rgba(0,212,255,0.4);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
-    }
-    body:hover .cursor { opacity: 1; }
-
     ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(var(--cyan), var(--purple)); }
+    ::-webkit-scrollbar-track { background: var(--void); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(var(--indigo), var(--magenta)); border-radius: 2px; }
 
-    /* NOISE OVERLAY */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      opacity: 0.4;
-      pointer-events: none;
+    /* ===== CURSOR ===== */
+    #c-dot {
+      position: fixed; z-index: 9999; pointer-events: none;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--white); mix-blend-mode: difference;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+      will-change: transform;
     }
+    #c-ring {
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(91,79,255,0.6);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s cubic-bezier(0.23,1,0.32,1),
+                  height 0.4s cubic-bezier(0.23,1,0.32,1),
+                  border-color 0.3s;
+      will-change: transform;
+    }
+    body.hovering #c-dot { width: 14px; height: 14px; }
+    body.hovering #c-ring { width: 56px; height: 56px; border-color: var(--magenta); }
 
-    /* NAV */
+    /* ===== NAV ===== */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 1.2rem 5vw;
-      background: rgba(2,4,10,0.7);
-      backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(0,212,255,0.08);
+      padding: 0 5vw; height: 68px;
+      transition: background 0.4s, border-color 0.4s;
     }
-    .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8rem; letter-spacing: 0.05em;
-      color: var(--white);
-      position: relative;
-    }
-    .nav-logo::after {
-      content: '';
-      position: absolute;
-      bottom: 2px; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
-    }
-    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
-    .nav-links a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem; color: var(--muted);
-      text-decoration: none; letter-spacing: 0.1em;
-      transition: color 0.2s;
-      position: relative;
-    }
-    .nav-links a::after {
-      content: '';
-      position: absolute; bottom: -4px; left: 0; right: 0;
-      height: 1px; background: var(--cyan);
-      transform: scaleX(0); transition: transform 0.3s;
-    }
-    .nav-links a:hover { color: var(--cyan); }
-    .nav-links a:hover::after { transform: scaleX(1); }
-    .nav-resume {
-      padding: 7px 18px;
-      border: 1px solid rgba(0,212,255,0.4);
-      border-radius: 6px;
-      color: var(--cyan) !important;
-      font-size: 0.72rem;
-      transition: background 0.2s, box-shadow 0.2s !important;
-    }
-    .nav-resume:hover {
-      background: rgba(0,212,255,0.1) !important;
-      box-shadow: 0 0 20px rgba(0,212,255,0.2);
-    }
-    .hamburger {
-      display: none; flex-direction: column;
-      gap: 5px; cursor: pointer; padding: 4px; background: none; border: none;
-    }
-    .hamburger span {
-      display: block; width: 22px; height: 2px;
-      background: var(--text); border-radius: 2px; transition: all 0.3s;
-    }
-    .mobile-menu {
-      display: none; flex-direction: column; gap: 1.5rem;
-      position: fixed; top: 62px; left: 0; right: 0;
-      background: rgba(8,13,24,0.98); padding: 2rem 5vw;
-      border-bottom: 1px solid rgba(0,212,255,0.1); z-index: 99;
+    nav.scrolled {
+      background: rgba(5,5,7,0.85);
       backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem; color: var(--text); text-decoration: none;
+    .n-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem; font-weight: 800;
+      color: var(--white); letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .n-logo .dot { color: var(--indigo); }
+    .n-links { display: flex; gap: 2.5rem; list-style: none; }
+    .n-links a {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      color: var(--muted); text-decoration: none;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .n-links a:hover { color: var(--white); }
+    .n-cta {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 9px 22px; border-radius: 6px;
+      border: 1px solid var(--border-hi);
+      color: var(--indigo); text-decoration: none;
+      background: rgba(91,79,255,0.06);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .n-cta:hover {
+      background: rgba(91,79,255,0.18);
+      box-shadow: 0 0 24px var(--indigo-glow);
+    }
+    .ham { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+    .ham span { display: block; width: 20px; height: 1.5px; background: var(--text); transition: all 0.3s; }
+    .mob-nav {
+      display: none; position: fixed; top: 68px; left: 0; right: 0; z-index: 199;
+      background: rgba(5,5,7,0.97); backdrop-filter: blur(20px);
+      padding: 2rem 5vw;
+      border-bottom: 1px solid var(--border);
+      flex-direction: column; gap: 1.5rem;
+    }
+    .mob-nav.open { display: flex; }
+    .mob-nav a { font-family: var(--font-mono); font-size: 0.9rem; color: var(--text); text-decoration: none; }
+
+    /* ===== CANVAS BG ===== */
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: 0.6;
     }
 
-    /* HERO */
+    /* ===== HERO ===== */
     .hero {
       min-height: 100vh;
-      display: flex; align-items: center;
-      padding: 8rem 5vw 4rem;
-      position: relative; overflow: hidden;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 4rem;
+      padding: 8rem 5vw 5rem;
+      position: relative; z-index: 1;
     }
-
-    /* ANIMATED BACKGROUND */
-    .hero-bg {
-      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-    }
-    .orb {
-      position: absolute; border-radius: 50%;
-      filter: blur(80px); opacity: 0.15;
-      animation: orbFloat 15s ease-in-out infinite;
-    }
-    .orb1 {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--cyan), transparent);
-      top: -200px; right: -100px;
-      animation-duration: 12s;
-    }
-    .orb2 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, var(--purple), transparent);
-      bottom: -150px; left: -100px;
-      animation-duration: 16s; animation-delay: -5s;
-    }
-    .orb3 {
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, var(--pink), transparent);
-      top: 50%; left: 40%;
-      animation-duration: 20s; animation-delay: -8s;
-    }
-    @keyframes orbFloat {
-      0%,100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(40px,-30px) scale(1.1); }
-      66% { transform: translate(-20px,40px) scale(0.95); }
-    }
-
-    /* GRID */
-    .hero-grid {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 0%, transparent 100%);
-      mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 0%, transparent 100%);
-    }
-
-    /* FLOATING PARTICLES */
-    .particles { position: absolute; inset: 0; pointer-events: none; }
-    .particle {
-      position: absolute; border-radius: 50%;
-      animation: particleDrift linear infinite;
-    }
-
-    @keyframes particleDrift {
-      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
-    }
-
-    .hero-content { position: relative; z-index: 2; max-width: 900px; }
-
-    /* GLITCH BADGE */
-    .hero-badge {
+    .hero-left { }
+    .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-      color: var(--cyan); letter-spacing: 0.15em;
-      border: 1px solid rgba(0,212,255,0.25);
-      background: rgba(0,212,255,0.05);
-      padding: 8px 20px; border-radius: 4px; margin-bottom: 2rem;
-      opacity: 0; animation: slideInLeft 0.8s 0.3s forwards;
-      position: relative; overflow: hidden;
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--green); letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 2.2rem;
+      opacity: 0; animation: fadeUp 0.7s 0.2s ease forwards;
     }
-    .hero-badge::before {
-      content: '';
-      position: absolute; top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.15), transparent);
-      animation: shimmer 3s ease-in-out infinite;
-    }
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 200%; }
-    }
-    .badge-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green); flex-shrink: 0;
+    .hero-eyebrow .pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
       box-shadow: 0 0 10px var(--green);
       animation: pulse 2s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); box-shadow: 0 0 10px var(--green); }
-      50% { transform: scale(1.4); box-shadow: 0 0 20px var(--green), 0 0 40px rgba(16,185,129,0.3); }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.5);opacity:0.6;} }
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 7vw, 7.5rem);
+      font-weight: 800; line-height: 0.95;
+      letter-spacing: -0.035em; color: var(--white);
+      opacity: 0; animation: fadeUp 0.9s 0.35s ease forwards;
+      margin-bottom: 0.15em;
     }
-
-    /* MASSIVE HEADLINE */
-    .hero-headline { overflow: hidden; margin-bottom: 0.2rem; }
-    .hero-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(5rem, 14vw, 13rem);
-      line-height: 0.9;
-      letter-spacing: 0.02em;
-      color: var(--white);
-      opacity: 0;
-      animation: revealUp 0.9s 0.5s forwards;
-      position: relative;
+    .hero-h1 .grad {
+      background: linear-gradient(110deg, var(--indigo) 0%, var(--magenta) 60%, #FF9A3C 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       display: block;
     }
-    .hero-name-accent {
-      display: block;
-      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--pink) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      opacity: 0;
-      animation: revealUp 0.9s 0.65s forwards;
-      position: relative;
+    .hero-tag {
+      display: inline-block;
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--indigo); letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid rgba(91,79,255,0.3); border-radius: 4px;
+      padding: 5px 14px; margin-bottom: 1.8rem;
+      background: rgba(91,79,255,0.06);
+      opacity: 0; animation: fadeUp 0.7s 0.55s ease forwards;
     }
-    /* TEXT OUTLINE EFFECT */
-    .hero-name-outline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(5rem, 14vw, 13rem);
-      line-height: 0.9;
-      letter-spacing: 0.02em;
-      -webkit-text-stroke: 1px rgba(0,212,255,0.15);
-      color: transparent;
-      position: absolute;
-      top: 0; left: 3px;
-      pointer-events: none;
+    .hero-p {
+      font-size: 1rem; line-height: 1.85; color: var(--text);
+      max-width: 460px; margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.7s ease forwards;
     }
-
-    @keyframes revealUp {
-      from { opacity: 0; transform: translateY(60px) skewY(3deg); }
-      to { opacity: 1; transform: translateY(0) skewY(0deg); }
-    }
-    @keyframes slideInLeft {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .hero-role {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(0.85rem, 2vw, 1.1rem);
-      color: var(--cyan); letter-spacing: 0.2em;
-      text-transform: uppercase;
-      opacity: 0; animation: slideInLeft 0.8s 0.85s forwards;
-      margin-bottom: 1.5rem;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .hero-role::before, .hero-role::after {
-      content: ''; flex: 1; max-width: 80px;
-      height: 1px; background: linear-gradient(90deg, transparent, var(--cyan));
-    }
-    .hero-role::after { background: linear-gradient(90deg, var(--cyan), transparent); }
-
-    .hero-sub {
-      max-width: 520px;
-      font-size: 1rem; line-height: 1.8; color: var(--text);
-      opacity: 0; animation: slideInLeft 0.8s 1s forwards;
-      margin-bottom: 2.5rem;
-    }
-
-    /* BUTTONS */
     .hero-btns {
       display: flex; gap: 1rem; flex-wrap: wrap;
-      opacity: 0; animation: slideInLeft 0.8s 1.1s forwards;
+      opacity: 0; animation: fadeUp 0.7s 0.85s ease forwards;
+      margin-bottom: 3.5rem;
     }
-    .btn-primary {
+    .btn-p {
       display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 32px; border-radius: 6px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      color: var(--bg); font-weight: 700; font-size: 0.85rem;
+      padding: 14px 30px; border-radius: 8px;
+      background: var(--indigo); color: var(--white);
+      font-family: var(--font-body); font-weight: 600; font-size: 0.85rem;
       text-decoration: none; position: relative; overflow: hidden;
       transition: transform 0.2s, box-shadow 0.3s;
     }
-    .btn-primary::before {
+    .btn-p::after {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--purple), var(--pink));
-      opacity: 0; transition: opacity 0.3s;
+      background: linear-gradient(135deg, var(--magenta), var(--indigo));
+      opacity: 0; transition: opacity 0.35s;
     }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,212,255,0.35); }
-    .btn-primary:hover::before { opacity: 1; }
-    .btn-primary span { position: relative; z-index: 1; }
-    .btn-ghost {
+    .btn-p:hover { transform: translateY(-3px); box-shadow: 0 16px 40px var(--indigo-glow); }
+    .btn-p:hover::after { opacity: 1; }
+    .btn-p span { position: relative; z-index: 1; }
+    .btn-g {
       display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 32px; border-radius: 6px;
-      border: 1px solid rgba(0,212,255,0.3);
+      padding: 14px 30px; border-radius: 8px;
+      border: 1px solid var(--border);
       color: var(--text); font-size: 0.85rem; text-decoration: none;
-      backdrop-filter: blur(10px);
-      background: rgba(0,212,255,0.04);
-      transition: border-color 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.3s, color 0.3s, transform 0.2s;
     }
-    .btn-ghost:hover {
-      border-color: var(--cyan); color: var(--cyan);
-      transform: translateY(-3px);
-      box-shadow: 0 0 30px rgba(0,212,255,0.15);
+    .btn-g:hover { border-color: rgba(255,255,255,0.2); color: var(--white); transform: translateY(-3px); }
+    .hero-metrics {
+      display: flex; gap: 0;
+      border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; width: fit-content;
+      opacity: 0; animation: fadeUp 0.7s 1s ease forwards;
     }
-
-    /* STATS */
-    .hero-stats {
-      display: flex; gap: 0; flex-wrap: wrap; margin-top: 4rem;
-      opacity: 0; animation: slideInLeft 0.8s 1.25s forwards;
-      border: 1px solid rgba(0,212,255,0.1);
-      border-radius: 12px; overflow: hidden;
-      background: rgba(0,212,255,0.02);
-      width: fit-content;
-    }
-    .stat {
-      padding: 1.5rem 2.5rem;
-      border-right: 1px solid rgba(0,212,255,0.1);
+    .metric {
+      padding: 1.4rem 2rem;
+      border-right: 1px solid var(--border);
       position: relative;
     }
-    .stat:last-child { border-right: none; }
-    .stat::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
-      transform: scaleX(0); transition: transform 0.4s;
-      transform-origin: left;
-    }
-    .stat:hover::before { transform: scaleX(1); }
-    .stat-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3rem; line-height: 1;
-      background: linear-gradient(135deg, var(--white), var(--cyan));
+    .metric:last-child { border-right: none; }
+    .metric-num {
+      font-family: var(--font-display);
+      font-size: 2.6rem; font-weight: 800;
+      line-height: 1; color: var(--white);
+      background: linear-gradient(135deg, var(--white), var(--indigo));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .stat-lbl {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem; color: var(--muted);
-      letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px;
+    .metric-lbl {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em;
+      margin-top: 4px;
     }
 
-    /* SCROLL INDICATOR */
-    .scroll-hint {
-      position: absolute; bottom: 2.5rem;
-      left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      opacity: 0; animation: fadeIn 1s 2s forwards;
+    /* ===== PHONE MOCKUP ===== */
+    .hero-right {
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; animation: fadeIn 1.2s 0.6s ease forwards;
+      perspective: 1200px;
     }
-    .scroll-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem; color: var(--muted);
-      letter-spacing: 0.2em; writing-mode: vertical-rl;
+    .phone-scene {
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      position: relative;
     }
-    .scroll-mouse {
-      width: 22px; height: 36px;
-      border: 1px solid rgba(0,212,255,0.3);
-      border-radius: 11px;
-      display: flex; align-items: flex-start;
-      justify-content: center; padding-top: 6px;
+    .phone-glow {
+      position: absolute; inset: -60px;
+      background: radial-gradient(ellipse at center, rgba(91,79,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
+      animation: glowPulse 4s ease-in-out infinite;
     }
-    .scroll-wheel {
-      width: 3px; height: 8px;
-      background: var(--cyan); border-radius: 2px;
-      animation: scrollWheel 2s ease-in-out infinite;
+    @keyframes glowPulse {
+      0%,100%{opacity:0.6;transform:scale(1);}
+      50%{opacity:1;transform:scale(1.1);}
     }
-    @keyframes scrollWheel {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(12px); opacity: 0; }
+    .phone {
+      width: 220px; height: 440px;
+      background: linear-gradient(160deg, #1a1a2e 0%, #0d0d1a 100%);
+      border-radius: 38px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.5),
+        0 30px 80px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+      transform-style: preserve-3d;
+    }
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 70px; height: 22px;
+      background: #050507;
+      border-radius: 0 0 14px 14px;
+      z-index: 10;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .phone-screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      padding: 44px 14px 18px;
+      overflow: hidden;
+    }
+    .p-statusbar {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 0.5rem;
+      color: rgba(255,255,255,0.5); padding: 0 4px;
+      margin-bottom: 16px;
+    }
+    .p-app-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .p-app-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--indigo), var(--magenta));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .p-app-name { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; color: var(--white); }
+    .p-app-sub { font-size: 0.5rem; color: var(--text); margin-top: 1px; }
+    .p-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px; padding: 10px; margin-bottom: 8px;
+    }
+    .p-card-label { font-size: 0.45rem; color: var(--text); margin-bottom: 4px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; }
+    .p-card-val { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--white); }
+    .p-card-sub { font-size: 0.45rem; color: var(--green); margin-top: 2px; }
+    .p-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .p-mini {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px; padding: 8px;
+    }
+    .p-mini-icon { font-size: 0.8rem; margin-bottom: 3px; }
+    .p-mini-label { font-size: 0.42rem; color: var(--text); margin-bottom: 2px; }
+    .p-mini-val { font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; color: var(--white); }
+    .p-bar-wrap { margin-top: 8px; }
+    .p-bar-label { display: flex; justify-content: space-between; font-size: 0.4rem; color: var(--text); margin-bottom: 3px; }
+    .p-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .p-bar-fill { height: 100%; border-radius: 2px; animation: barGrow 2s 1.5s ease forwards; width: 0; }
+    @keyframes barGrow { to { width: var(--w); } }
+    .phone-side-btn {
+      position: absolute; right: -2px; top: 100px;
+      width: 3px; height: 50px;
+      background: rgba(255,255,255,0.15); border-radius: 0 2px 2px 0;
+    }
+    .phone-vol-btn {
+      position: absolute; left: -2px;
+      width: 3px; border-radius: 2px 0 0 2px;
+      background: rgba(255,255,255,0.15);
+    }
+    .phone-vol-btn.v1 { top: 90px; height: 30px; }
+    .phone-vol-btn.v2 { top: 130px; height: 30px; }
+    /* Floating app icons around phone */
+    .float-badge {
+      position: absolute;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 8px 14px;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      color: var(--white); white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .fb1 { top: 30px; right: -90px; animation: fbFloat1 6s ease-in-out infinite; }
+    .fb2 { bottom: 80px; left: -100px; animation: fbFloat2 7s ease-in-out infinite 1s; }
+    .fb3 { bottom: 20px; right: -80px; animation: fbFloat1 8s ease-in-out infinite 2s; }
+    @keyframes fbFloat1 {
+      0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}
+    }
+    @keyframes fbFloat2 {
+      0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);}
+    }
+    .fb-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeIn {
       from { opacity: 0; } to { opacity: 1; }
     }
 
-    /* =============== SECTIONS =============== */
-    section { padding: 8rem 5vw; position: relative; }
+    /* ===== TICKER ===== */
+    .ticker-section {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden; padding: 0;
+      background: var(--deep);
+    }
+    .ticker-track {
+      display: flex; gap: 0;
+      animation: tickerScroll 25s linear infinite;
+      width: max-content;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes tickerScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 40px;
+      border-right: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+      white-space: nowrap; transition: color 0.2s;
+    }
+    .ticker-item:hover { color: var(--white); }
+    .t-icon { font-size: 1rem; }
 
-    .sec-eyebrow {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem; color: var(--cyan);
-      letter-spacing: 0.25em; text-transform: uppercase;
-      margin-bottom: 0.8rem;
-      display: flex; align-items: center; gap: 12px;
+    /* ===== SECTION COMMONS ===== */
+    .section { padding: 9rem 5vw; position: relative; z-index: 1; }
+    .section-alt { background: var(--deep); }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--indigo); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 10px;
     }
-    .sec-eyebrow::before {
-      content: '';
-      width: 30px; height: 1px;
-      background: var(--cyan);
+    .eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--indigo); }
+    .sec-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4.5rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      color: var(--white); line-height: 1;
+      margin-bottom: 4rem;
     }
-    .sec-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      letter-spacing: 0.04em;
-      color: var(--white); margin-bottom: 4rem; line-height: 1;
-    }
-    .sec-title em {
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    .sec-h2 em {
       font-style: normal;
+      background: linear-gradient(110deg, var(--indigo), var(--magenta));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
 
-    /* SKILLS SECTION */
-    #skills { background: var(--surface); }
-    #skills::before {
-      content: 'SKILLS';
-      position: absolute; right: 3vw; top: 5rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 12rem; color: rgba(0,212,255,0.02);
-      pointer-events: none; line-height: 1;
-      user-select: none;
-    }
-
+    /* ===== SKILLS ===== */
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1px;
-      background: rgba(0,212,255,0.08);
-      border: 1px solid rgba(0,212,255,0.08);
-      border-radius: 16px; overflow: hidden;
+      background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
     }
-    .skill-card {
-      background: var(--card);
-      padding: 2rem;
-      opacity: 0; transform: scale(0.95);
-      transition: background 0.3s, transform 0.3s;
+    .sk-card {
+      background: var(--card); padding: 2rem;
       position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease, background 0.3s;
     }
-    .skill-card::before {
+    .sk-card.vis { opacity: 1; transform: translateY(0); }
+    .sk-card::after {
       content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent);
-      opacity: 0; transition: opacity 0.4s;
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--indigo), var(--magenta));
+      transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
     }
-    .skill-card::after {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
-      transform: scaleX(0); transition: transform 0.4s;
-      transform-origin: left;
+    .sk-card:hover { background: rgba(91,79,255,0.04); }
+    .sk-card:hover::after { transform: scaleX(1); }
+    .sk-glyph {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(91,79,255,0.1); border: 1px solid rgba(91,79,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 1.2rem;
     }
-    .skill-card.vis {
-      opacity: 1; transform: scale(1);
-      transition: opacity 0.5s ease, transform 0.5s ease, background 0.3s;
-    }
-    .skill-card:hover { background: rgba(0,212,255,0.04); }
-    .skill-card:hover::before { opacity: 1; }
-    .skill-card:hover::after { transform: scaleX(1); }
-    .skill-icon {
-      font-size: 2rem; margin-bottom: 1.2rem;
-      display: block;
-      filter: drop-shadow(0 0 15px rgba(0,212,255,0.3));
-    }
-    .skill-card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1rem; font-weight: 700;
+    .sk-card h3 {
+      font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
       color: var(--white); margin-bottom: 1rem;
     }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; }
     .tag {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
-      padding: 3px 10px; border-radius: 4px;
-      background: rgba(0,212,255,0.06);
-      border: 1px solid rgba(0,212,255,0.15); color: var(--cyan);
-      transition: background 0.2s, border-color 0.2s;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      padding: 3px 9px; border-radius: 4px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text); transition: all 0.2s;
     }
-    .tag:hover { background: rgba(0,212,255,0.15); border-color: var(--cyan); }
-    .tag.v { background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.2); color: #a78bfa; }
-    .tag.v:hover { background: rgba(124,58,237,0.15); }
-    .tag.g { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.2); color: var(--green); }
-    .tag.g:hover { background: rgba(16,185,129,0.15); }
+    .tag:hover { background: rgba(91,79,255,0.12); border-color: var(--border-hi); color: var(--indigo); }
+    .tag.m { background: rgba(255,45,120,0.05); border-color: rgba(255,45,120,0.2); color: #FF6EA0; }
+    .tag.g { background: rgba(0,229,160,0.05); border-color: rgba(0,229,160,0.2); color: var(--green); }
 
-    /* EXPERIENCE */
-    #experience { background: var(--bg); }
-    #experience::before {
-      content: 'EXP';
-      position: absolute; left: 2vw; top: 4rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 14rem; color: rgba(124,58,237,0.02);
-      pointer-events: none; line-height: 1;
-      user-select: none;
-    }
-
-    .timeline { position: relative; padding-left: 2rem; }
+    /* ===== EXPERIENCE TIMELINE ===== */
+    .timeline { position: relative; }
     .timeline::before {
       content: '';
-      position: absolute; left: 0; top: 10px; bottom: 0;
+      position: absolute; left: 24px; top: 0; bottom: 0;
       width: 1px;
-      background: linear-gradient(var(--cyan), var(--purple), rgba(124,58,237,0.05));
+      background: linear-gradient(to bottom, var(--indigo), var(--magenta), rgba(255,45,120,0.05));
     }
     .t-item {
-      position: relative; margin-bottom: 4rem;
-      opacity: 0; transform: translateX(-20px);
+      display: flex; gap: 3rem; margin-bottom: 3.5rem; padding-left: 4rem; position: relative;
+      opacity: 0; transform: translateX(-24px);
     }
     .t-item.vis {
       opacity: 1; transform: translateX(0);
       transition: opacity 0.7s ease, transform 0.7s ease;
     }
-    .t-dot {
-      position: absolute; left: -2.5rem; top: 6px;
-      width: 14px; height: 14px; border-radius: 50%;
-      border: 2px solid var(--cyan);
-      background: var(--bg);
-      box-shadow: 0 0 15px rgba(0,212,255,0.4), 0 0 30px rgba(0,212,255,0.1);
+    .t-node {
+      position: absolute; left: 17px; top: 24px;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--indigo); background: var(--void);
+      box-shadow: 0 0 0 4px rgba(91,79,255,0.1);
+      flex-shrink: 0; z-index: 2;
     }
-    .t-item:first-child .t-dot {
-      background: var(--cyan);
-      box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,212,255,0.4);
-      animation: dotPulse 2s ease-in-out infinite;
+    .t-item:first-child .t-node {
+      background: var(--indigo);
+      box-shadow: 0 0 0 4px rgba(91,79,255,0.15), 0 0 20px var(--indigo);
+      animation: nodePulse 2.5s ease-in-out infinite;
     }
-    @keyframes dotPulse {
-      0%,100% { box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,212,255,0.4); }
-      50% { box-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,212,255,0.6); }
+    @keyframes nodePulse {
+      0%,100%{box-shadow: 0 0 0 4px rgba(91,79,255,0.15), 0 0 20px var(--indigo);}
+      50%{box-shadow: 0 0 0 8px rgba(91,79,255,0.08), 0 0 40px var(--indigo);}
     }
     .t-card {
-      background: var(--card);
-      border: 1px solid rgba(0,212,255,0.08);
-      border-radius: 12px; padding: 2rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem; flex: 1;
       transition: border-color 0.3s, box-shadow 0.3s;
       position: relative; overflow: hidden;
     }
     .t-card::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--indigo), transparent);
       opacity: 0; transition: opacity 0.4s;
     }
-    .t-card:hover { border-color: rgba(0,212,255,0.25); box-shadow: 0 8px 40px rgba(0,212,255,0.06); }
+    .t-card:hover { border-color: rgba(91,79,255,0.25); box-shadow: 0 8px 40px rgba(91,79,255,0.06); }
     .t-card:hover::before { opacity: 1; }
-    .t-head {
-      display: flex; align-items: flex-start;
-      justify-content: space-between; flex-wrap: wrap;
-      gap: 0.8rem; margin-bottom: 0.5rem;
+    .t-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .t-role { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--white); }
+    .t-period {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--indigo); border: 1px solid rgba(91,79,255,0.25);
+      padding: 4px 12px; border-radius: 4px; background: rgba(91,79,255,0.06);
+      white-space: nowrap;
     }
-    .t-role {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.2rem; font-weight: 700; color: var(--white);
-    }
-    .t-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
-      color: var(--cyan); border: 1px solid rgba(0,212,255,0.25);
-      padding: 4px 12px; border-radius: 4px; white-space: nowrap;
-      background: rgba(0,212,255,0.05);
-    }
-    .t-company {
-      font-size: 0.88rem; color: #a78bfa;
-      font-weight: 500; margin-bottom: 1.2rem;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .t-company::before {
-      content: '';
-      width: 16px; height: 1px;
-      background: #a78bfa;
-    }
-    .t-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .t-list li {
-      display: flex; gap: 12px;
-      font-size: 0.88rem; color: var(--text); line-height: 1.7;
-    }
-    .t-list li::before {
-      content: '▸'; color: var(--cyan); flex-shrink: 0;
-      font-size: 0.75rem; margin-top: 3px;
-    }
+    .t-company { font-size: 0.82rem; color: var(--magenta); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px; }
+    .t-company::before { content: ''; width: 14px; height: 1px; background: var(--magenta); }
+    .t-bullets { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .t-bullets li { display: flex; gap: 10px; font-size: 0.84rem; line-height: 1.65; color: var(--text); }
+    .t-bullets li::before { content: '▸'; color: var(--indigo); font-size: 0.68rem; flex-shrink: 0; margin-top: 4px; }
 
-    /* APPS */
-    #apps { background: var(--surface); }
-    #apps::before {
-      content: 'APPS';
-      position: absolute; right: 2vw; top: 4rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 14rem; color: rgba(236,72,153,0.02);
-      pointer-events: none; line-height: 1;
-      user-select: none;
-    }
+    /* ===== APPS ===== */
     .apps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
     }
     .app-card {
-      background: var(--card);
-      border: 1px solid rgba(0,212,255,0.08);
-      border-radius: 14px; padding: 1.8rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.6rem;
       text-decoration: none;
       display: flex; flex-direction: column; gap: 1rem;
-      opacity: 0; transform: translateY(20px);
-      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      opacity: 0; transform: translateY(24px);
       position: relative; overflow: hidden;
-      group: '';
+      transition: border-color 0.3s, box-shadow 0.3s;
+      will-change: transform;
     }
     .app-card::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(0,212,255,0.03), rgba(124,58,237,0.03));
+      background: radial-gradient(circle at 50% 0%, rgba(91,79,255,0.07), transparent 70%);
       opacity: 0; transition: opacity 0.4s;
     }
     .app-card.vis {
@@ -639,773 +536,835 @@
       transition: opacity 0.6s ease, transform 0.6s ease,
                   border-color 0.3s, box-shadow 0.3s;
     }
-    .app-card:hover {
-      border-color: rgba(0,212,255,0.3);
-      box-shadow: 0 12px 50px rgba(0,212,255,0.1);
-      transform: translateY(-6px);
-    }
+    .app-card:hover { border-color: rgba(91,79,255,0.3); box-shadow: 0 16px 50px rgba(91,79,255,0.1); }
     .app-card:hover::before { opacity: 1; }
-    .app-header { display: flex; align-items: center; gap: 1rem; }
-    .app-img {
-      width: 64px; height: 64px; border-radius: 14px;
+    .app-head { display: flex; align-items: center; gap: 1rem; }
+    .app-icon {
+      width: 58px; height: 58px; border-radius: 14px;
       overflow: hidden; flex-shrink: 0;
       box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
     }
-    .app-img img {
-      width: 100%; height: 100%;
-      object-fit: cover; display: block; transition: transform 0.4s;
+    .app-card:hover .app-icon { transform: scale(1.08) rotate(-2deg); }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-nm { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--white); line-height: 1.3; }
+    .app-badge {
+      font-family: var(--font-mono); font-size: 0.55rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px;
     }
-    .app-card:hover .app-img img { transform: scale(1.1); }
-    .app-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1rem; font-weight: 700; color: var(--white);
-      line-height: 1.3;
-    }
-    .app-store-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
-      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .app-desc { font-size: 0.83rem; color: var(--text); line-height: 1.7; flex: 1; }
-    .app-link {
+    .app-desc { font-size: 0.82rem; color: var(--text); line-height: 1.7; flex: 1; }
+    .app-footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding-top: 0.8rem;
-      border-top: 1px solid rgba(0,212,255,0.08);
+      padding-top: 0.8rem; border-top: 1px solid var(--border);
     }
-    .app-link-text {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
-      color: var(--cyan); display: flex; align-items: center; gap: 6px;
+    .app-link-txt {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--indigo); display: flex; align-items: center; gap: 6px;
       transition: gap 0.2s;
     }
-    .app-card:hover .app-link-text { gap: 10px; }
-    .app-arrow {
-      width: 28px; height: 28px;
-      border: 1px solid rgba(0,212,255,0.2);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      color: var(--cyan); font-size: 0.7rem;
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .app-card:hover .app-arrow { background: var(--cyan); border-color: var(--cyan); color: var(--bg); }
-
-    /* CONTACT */
-    #contact { background: var(--bg); }
-    .contact-wrapper {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 5rem; align-items: start;
-    }
-    .c-items { display: flex; flex-direction: column; gap: 1rem; }
-    .c-item {
-      display: flex; align-items: center; gap: 1.2rem;
-      background: var(--card);
-      border: 1px solid rgba(0,212,255,0.08);
-      border-radius: 12px; padding: 1.2rem 1.6rem;
-      text-decoration: none;
-      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-      opacity: 0; transform: translateX(-24px);
-      position: relative; overflow: hidden;
-    }
-    .c-item::before {
-      content: '';
-      position: absolute; left: 0; top: 0; bottom: 0;
-      width: 2px;
-      background: linear-gradient(var(--cyan), var(--purple));
-      transform: scaleY(0); transition: transform 0.3s;
-      transform-origin: bottom;
-    }
-    .c-item.vis { opacity: 1; transform: translateX(0); transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.3s, box-shadow 0.3s; }
-    .c-item:hover {
-      border-color: rgba(0,212,255,0.3);
-      transform: translateX(6px);
-      box-shadow: 0 6px 30px rgba(0,212,255,0.08);
-    }
-    .c-item:hover::before { transform: scaleY(1); }
-    .c-icon-wrap {
-      width: 44px; height: 44px; border-radius: 10px;
+    .app-card:hover .app-link-txt { gap: 10px; }
+    .app-arr {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(91,79,255,0.25);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-      background: rgba(0,212,255,0.08);
-      border: 1px solid rgba(0,212,255,0.15);
+      color: var(--indigo); font-size: 0.7rem;
+      transition: all 0.3s;
     }
-    .c-lbl {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
-      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
-      margin-bottom: 2px;
+    .app-card:hover .app-arr {
+      background: var(--indigo); border-color: var(--indigo); color: #fff;
     }
-    .c-val { font-size: 0.9rem; color: var(--white); font-weight: 500; }
 
-    /* CTA CARD */
-    .c-cta {
-      background: var(--card);
-      border: 1px solid rgba(0,212,255,0.12);
-      border-radius: 20px; padding: 3.5rem 3rem;
-      display: flex; flex-direction: column;
-      align-items: center; text-align: center; gap: 1.5rem;
+    /* ===== CONTACT ===== */
+    .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .c-links { display: flex; flex-direction: column; gap: 0.8rem; }
+    .c-link {
+      display: flex; align-items: center; gap: 1.2rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.2rem 1.5rem;
+      text-decoration: none;
+      opacity: 0; transform: translateX(-20px);
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .c-link::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, var(--indigo), var(--magenta));
+      transform: scaleY(0); transition: transform 0.3s; transform-origin: top;
+    }
+    .c-link.vis {
+      opacity: 1; transform: translateX(0);
+      transition: opacity 0.6s ease, transform 0.6s ease,
+                  border-color 0.3s, box-shadow 0.3s;
+    }
+    .c-link:hover { border-color: rgba(91,79,255,0.3); box-shadow: 0 6px 30px rgba(91,79,255,0.08); }
+    .c-link:hover::before { transform: scaleY(1); }
+    .c-ico {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: rgba(91,79,255,0.08); border: 1px solid rgba(91,79,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .c-lbl { font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .c-val { font-size: 0.88rem; color: var(--white); font-weight: 500; margin-top: 2px; }
+
+    /* CTA BOX */
+    .c-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3.5rem 2.5rem;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 1.4rem;
       position: relative; overflow: hidden;
     }
-    .c-cta::before {
+    .c-box::before {
       content: '';
-      position: absolute;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(0,212,255,0.08), transparent);
-      top: -80px; right: -80px; pointer-events: none;
-    }
-    .c-cta::after {
-      content: '';
-      position: absolute;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(124,58,237,0.08), transparent);
-      bottom: -60px; left: -60px; pointer-events: none;
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% -20%, rgba(91,79,255,0.1), transparent 60%);
+      pointer-events: none;
     }
     .c-avatar {
-      width: 100px; height: 100px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      width: 90px; height: 90px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--indigo), var(--magenta));
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem;
-      color: var(--bg); position: relative; z-index: 1;
-      box-shadow: 0 0 40px rgba(0,212,255,0.3);
-      animation: avatarGlow 3s ease-in-out infinite;
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;
+      color: #fff; position: relative; z-index: 1;
+      box-shadow: 0 0 0 4px rgba(91,79,255,0.15), 0 0 40px rgba(91,79,255,0.25);
+      animation: avatarAura 3.5s ease-in-out infinite;
     }
-    @keyframes avatarGlow {
-      0%,100% { box-shadow: 0 0 40px rgba(0,212,255,0.3); }
-      50% { box-shadow: 0 0 60px rgba(0,212,255,0.5), 0 0 100px rgba(124,58,237,0.2); }
+    @keyframes avatarAura {
+      0%,100%{box-shadow: 0 0 0 4px rgba(91,79,255,0.15), 0 0 40px rgba(91,79,255,0.25);}
+      50%{box-shadow: 0 0 0 8px rgba(91,79,255,0.08), 0 0 60px rgba(91,79,255,0.4), 0 0 80px rgba(255,45,120,0.15);}
     }
-    .c-cta h3 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem; color: var(--white);
-      letter-spacing: 0.05em;
+    .c-box h3 {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;
+      color: var(--white); letter-spacing: -0.02em; position: relative; z-index: 1;
+    }
+    .c-box p { font-size: 0.85rem; color: var(--text); line-height: 1.75; position: relative; z-index: 1; }
+    .open-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,229,160,0.07); border: 1px solid rgba(0,229,160,0.25);
+      color: var(--green); padding: 7px 18px; border-radius: 6px;
+      font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em;
       position: relative; z-index: 1;
     }
-    .c-cta p {
-      font-size: 0.88rem; color: var(--text); line-height: 1.75;
-      position: relative; z-index: 1;
-    }
-    .open-pill {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: rgba(16,185,129,0.08);
-      border: 1px solid rgba(16,185,129,0.3);
-      color: var(--green); padding: 8px 20px;
-      border-radius: 6px; font-size: 0.8rem; font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.08em;
-      position: relative; z-index: 1;
-      box-shadow: 0 0 20px rgba(16,185,129,0.1);
-    }
-    .pill-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 10px var(--green);
-      animation: pulse 2s ease-in-out infinite;
-    }
+    .ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
 
-    /* FOOTER */
+    /* ===== FOOTER ===== */
     footer {
-      background: var(--surface);
-      border-top: 1px solid rgba(0,212,255,0.06);
-      padding: 2rem 5vw;
-      display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      background: var(--deep); border-top: 1px solid var(--border);
+      padding: 1.8rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
     }
-    .f-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      color: var(--white); font-size: 1.5rem;
-      letter-spacing: 0.05em;
-    }
-    .f-logo span { color: var(--cyan); }
-    footer p { font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .f-logo { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--white); }
+    .f-logo span { color: var(--indigo); }
+    footer small { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
 
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .contact-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+    /* ===== SCROLL HINT ===== */
+    .scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: fadeIn 1s 2s ease forwards;
     }
-    @media (max-width: 780px) {
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-      .hero { padding-top: 7rem; }
-      .hero-stats { flex-wrap: wrap; }
-      .stat { padding: 1.2rem 1.8rem; }
-      section { padding: 5rem 5vw; }
-      .sec-title { margin-bottom: 2.5rem; }
+    .s-mouse {
+      width: 20px; height: 32px; border: 1px solid rgba(91,79,255,0.4); border-radius: 10px;
+      display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;
+    }
+    .s-wheel { width: 2px; height: 6px; background: var(--indigo); border-radius: 2px; animation: scrollWheel 2s ease-in-out infinite; }
+    @keyframes scrollWheel { 0%{transform:translateY(0);opacity:1;} 100%{transform:translateY(10px);opacity:0;} }
+    .s-label { font-family: var(--font-mono); font-size: 0.55rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+
+    /* ===== DECORATIVE WATERMARK ===== */
+    .wm {
+      position: absolute; pointer-events: none; user-select: none;
+      font-family: var(--font-display); font-weight: 800;
+      color: rgba(91,79,255,0.025); line-height: 1;
+      z-index: 0; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      white-space: nowrap;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 9rem; gap: 4rem; }
+      .hero-right { display: none; }
+      .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    @media (max-width: 768px) {
+      .n-links, .n-cta { display: none; }
+      .ham { display: flex; }
       body { cursor: auto; }
-      .cursor, .cursor-ring { display: none; }
+      #c-dot, #c-ring { display: none; }
+      section { padding: 6rem 5vw; }
     }
     @media (max-width: 480px) {
-      .hero-name { font-size: 4rem; }
-      .hero-name-accent { font-size: 4rem; }
+      .hero-h1 { font-size: 3rem; }
       .apps-grid { grid-template-columns: 1fr; }
-      .skills-grid { grid-template-columns: 1fr; }
     }
 
-    /* GLITCH EFFECT */
-    @keyframes glitch {
-      0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
-      20% { clip-path: inset(30% 0 50% 0); transform: translate(-3px, 0); }
-      40% { clip-path: inset(60% 0 10% 0); transform: translate(3px, 0); }
-      60% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
-      80% { clip-path: inset(80% 0 5% 0); transform: translate(2px, 0); }
+    /* ===== TILT 3D ===== */
+    .tilt-card { transform-style: preserve-3d; transition: transform 0.15s ease; }
+    .tilt-inner { transform: translateZ(20px); }
+
+    /* ===== NOISE TEXTURE ===== */
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35;
+    }
+
+    /* ===== TEXT REVEAL SPANS ===== */
+    .reveal-word {
+      display: inline-block;
+      opacity: 0; transform: translateY(40px) rotateX(-20deg);
+      animation: wordReveal 0.7s ease forwards;
+      transform-origin: bottom;
+    }
+    @keyframes wordReveal {
+      to { opacity: 1; transform: translateY(0) rotateX(0deg); }
     }
   </style>
 </head>
 <body>
 
-  <!-- CURSOR -->
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
+<!-- CURSOR -->
+<div id="c-dot"></div>
+<div id="c-ring"></div>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo">SC<span>.</span></div>
-    <ul class="nav-links">
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#apps">Apps</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="SWAPNIL.pdf" target="_blank" class="nav-resume">Resume ↗</a></li>
-    </ul>
-    <button class="hamburger" id="ham" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#skills" onclick="closeMenu()">Skills</a>
-    <a href="#experience" onclick="closeMenu()">Experience</a>
-    <a href="#apps" onclick="closeMenu()">Apps</a>
-    <a href="#contact" onclick="closeMenu()">Contact</a>
-    <a href="SWAPNIL.pdf" target="_blank">Resume ↗</a>
+<!-- ANIMATED BG CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#home" class="n-logo">SC<span class="dot">.</span></a>
+  <ul class="n-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#apps">Apps</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="SWAPNIL.pdf" target="_blank" class="n-cta">Resume ↗</a>
+  <button class="ham" id="ham-btn" onclick="toggleNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mob-nav" id="mob-nav">
+  <a href="#skills" onclick="toggleNav()">Skills</a>
+  <a href="#experience" onclick="toggleNav()">Experience</a>
+  <a href="#apps" onclick="toggleNav()">Apps</a>
+  <a href="#contact" onclick="toggleNav()">Contact</a>
+  <a href="SWAPNIL.pdf" target="_blank">Resume ↗</a>
+</div>
+
+<!-- ============================================================ HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="pulse"></div>
+      iOS Developer &nbsp;·&nbsp; Available for Work
+    </div>
+    <h1 class="hero-h1">
+      Swapnil<br>
+      <span class="grad">Christian.</span>
+    </h1>
+    <div class="hero-tag">// 3+ Years Building iOS Excellence</div>
+    <p class="hero-p">
+      Crafting pixel-perfect experiences for iPhone, iPad &amp; Mac.
+      Specializing in SwiftUI, UIKit, ML integration, real-time systems,
+      and production-grade iOS ecosystems with 11+ live App Store apps.
+    </p>
+    <div class="hero-btns">
+      <a href="#apps" class="btn-p"><span>🚀 View My Apps</span></a>
+      <a href="#contact" class="btn-g">✉️ Get In Touch</a>
+      <a href="./SWAPNIL.pdf" target="_blank" class="btn-g">📄 Resume</a>
+    </div>
+    <div class="hero-metrics">
+      <div class="metric">
+        <div class="metric-num" data-target="3">0</div>
+        <div class="metric-lbl">Years Exp</div>
+      </div>
+      <div class="metric">
+        <div class="metric-num" data-target="11">0</div>
+        <div class="metric-lbl">Apps Live</div>
+      </div>
+      <div class="metric">
+        <div class="metric-num" data-target="15">0</div>
+        <div class="metric-lbl">Technologies</div>
+      </div>
+    </div>
   </div>
 
-  <!-- HERO -->
-  <section class="hero" id="home">
-    <div class="hero-bg">
-      <div class="orb orb1"></div>
-      <div class="orb orb2"></div>
-      <div class="orb orb3"></div>
-    </div>
-    <div class="hero-grid"></div>
-    <div class="particles" id="particles"></div>
-
-    <div class="hero-content">
-      <div class="hero-badge">
-        <div class="badge-dot"></div>
-        iOS Developer &nbsp;·&nbsp; Available for Work
+  <div class="hero-right">
+    <div class="phone-scene" id="phone-scene">
+      <div class="phone-glow"></div>
+      <!-- Floating badges -->
+      <div class="float-badge fb1">
+        <div class="fb-dot" style="background:#00E5A0;box-shadow:0 0 8px #00E5A0;"></div>
+        SwiftUI ✓
       </div>
-
-      <div class="hero-headline">
-        <span class="hero-name" style="position:relative">
-          Swapnil
-          <span class="hero-name-outline" aria-hidden="true">Swapnil</span>
-        </span>
-        <span class="hero-name-accent">Christian.</span>
+      <div class="float-badge fb2">
+        <span>📱</span> 11+ Apps Live
       </div>
-
-      <div class="hero-role">3+ Years Building iOS Excellence</div>
-
-      <p class="hero-sub">
-        Crafting pixel-perfect experiences for iPhone, iPad &amp; Mac.
-        Specialized in SwiftUI, UIKit, ML integration, real-time systems,
-        and production-grade iOS ecosystems.
-      </p>
-
-      <div class="hero-btns">
-        <a href="#apps" class="btn-primary"><span>🚀 View My Apps</span></a>
-        <a href="#contact" class="btn-ghost">✉️ Get In Touch</a>
-        <a href="./SWAPNIL.pdf" target="_blank" download class="btn-ghost">📄 Resume</a>
+      <div class="float-badge fb3">
+        <div class="fb-dot" style="background:#5B4FFF;box-shadow:0 0 8px #5B4FFF;"></div>
+        ML Kit
       </div>
-
-      <div class="hero-stats">
-        <div class="stat">
-          <div class="stat-num">3+</div>
-          <div class="stat-lbl">Years Exp</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num">11+</div>
-          <div class="stat-lbl">Apps Live</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num">15+</div>
-          <div class="stat-lbl">Technologies</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="scroll-hint">
-      <div class="scroll-mouse">
-        <div class="scroll-wheel"></div>
-      </div>
-      <div class="scroll-text">SCROLL</div>
-    </div>
-  </section>
-
-  <!-- SKILLS -->
-  <section id="skills">
-    <div class="sec-eyebrow">What I work with</div>
-    <h2 class="sec-title">Technical <em>Skills</em></h2>
-    <div class="skills-grid">
-      <div class="skill-card">
-        <span class="skill-icon">📱</span>
-        <h3>iOS Development</h3>
-        <div class="tags">
-          <span class="tag">Swift</span><span class="tag">SwiftUI</span>
-          <span class="tag">UIKit</span><span class="tag">SpriteKit</span>
-          <span class="tag">Dart (Basic)</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">🧠</span>
-        <h3>AI &amp; Computer Vision</h3>
-        <div class="tags">
-          <span class="tag v">Google ML Kit</span><span class="tag v">MediaPipe</span>
-          <span class="tag v">Body Tracking</span><span class="tag v">Hand Gestures</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">🔥</span>
-        <h3>Backend &amp; Realtime</h3>
-        <div class="tags">
-          <span class="tag g">Firebase</span><span class="tag g">Firestore</span>
-          <span class="tag g">Realtime DB</span><span class="tag g">Socket.io</span>
-          <span class="tag g">Remote Config</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">💳</span>
-        <h3>Payments &amp; Subscriptions</h3>
-        <div class="tags">
-          <span class="tag">StoreKit</span><span class="tag">RevenueCat</span>
-          <span class="tag">Razorpay</span><span class="tag">In-App Purchases</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">🎮</span>
-        <h3>Third-Party &amp; Gaming</h3>
-        <div class="tags">
-          <span class="tag v">Alamofire</span><span class="tag v">Twilio SDK</span>
-          <span class="tag v">Agora SDK</span><span class="tag v">Unity Integration</span>
-          <span class="tag v">Video / Audio</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">📊</span>
-        <h3>Analytics &amp; Cloud</h3>
-        <div class="tags">
-          <span class="tag g">Firebase Analytics</span>
-          <span class="tag g">Crashlytics</span>
-          <span class="tag g">MS Clarity</span><span class="tag g">AppMetrica</span>
-          <span class="tag g">iCloud Sync</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">🏗️</span>
-        <h3>Architecture</h3>
-        <div class="tags">
-          <span class="tag">MVC</span><span class="tag">MVVM</span>
-          <span class="tag">Code Review</span><span class="tag">Team Lead</span>
-        </div>
-      </div>
-      <div class="skill-card">
-        <span class="skill-icon">🗺️</span>
-        <h3>Maps &amp; Navigation</h3>
-        <div class="tags">
-          <span class="tag v">Google Maps</span><span class="tag v">Apple Maps</span>
-          <span class="tag v">Mapbox</span><span class="tag v">Real-time Tracking</span>
-          <span class="tag v">Geolocation</span>
+      <div class="phone">
+        <div class="phone-side-btn"></div>
+        <div class="phone-vol-btn v1"></div>
+        <div class="phone-vol-btn v2"></div>
+        <div class="phone-screen">
+          <div class="p-statusbar">
+            <span>9:41</span>
+            <span>●●● ▲ 100%</span>
+          </div>
+          <div class="p-app-header">
+            <div class="p-app-icon">💊</div>
+            <div>
+              <div class="p-app-name">HealthSy</div>
+              <div class="p-app-sub">Medicine · Consult · Track</div>
+            </div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-label">Today's Orders</div>
+            <div class="p-card-val">247</div>
+            <div class="p-card-sub">↑ 18% from yesterday</div>
+          </div>
+          <div class="p-mini-grid">
+            <div class="p-mini">
+              <div class="p-mini-icon">🩺</div>
+              <div class="p-mini-label">Consultations</div>
+              <div class="p-mini-val">34 Live</div>
+            </div>
+            <div class="p-mini">
+              <div class="p-mini-icon">🚚</div>
+              <div class="p-mini-label">Deliveries</div>
+              <div class="p-mini-val">89 Active</div>
+            </div>
+          </div>
+          <div class="p-bar-wrap">
+            <div class="p-bar-label"><span>Daily Goal</span><span>74%</span></div>
+            <div class="p-bar"><div class="p-bar-fill" style="--w:74%;background:linear-gradient(90deg,#5B4FFF,#FF2D78);"></div></div>
+          </div>
+          <div class="p-bar-wrap">
+            <div class="p-bar-label"><span>Revenue</span><span>91%</span></div>
+            <div class="p-bar"><div class="p-bar-fill" style="--w:91%;background:linear-gradient(90deg,#00E5A0,#5B4FFF);"></div></div>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="sec-eyebrow">Career journey</div>
-  <h2 class="sec-title">Work <em>Experience</em></h2>
+  <div class="scroll-hint">
+    <div class="s-mouse"><div class="s-wheel"></div></div>
+    <div class="s-label">Scroll</div>
+  </div>
+</section>
 
+<!-- ============================================================ TICKER -->
+<div class="ticker-section">
+  <div class="ticker-track" id="ticker">
+    <!-- JS fills these -->
+  </div>
+</div>
+
+<!-- ============================================================ SKILLS -->
+<section class="section section-alt" id="skills" style="position:relative;overflow:hidden;">
+  <div class="wm" style="font-size:clamp(6rem,15vw,14rem);">SKILLS</div>
+  <div class="eyebrow">What I work with</div>
+  <h2 class="sec-h2">Technical <em>Stack</em></h2>
+  <div class="skills-grid">
+    <div class="sk-card">
+      <div class="sk-glyph">📱</div>
+      <h3>iOS Development</h3>
+      <div class="tags">
+        <span class="tag">Swift</span><span class="tag">SwiftUI</span>
+        <span class="tag">UIKit</span><span class="tag">SpriteKit</span>
+        <span class="tag">ARKit</span><span class="tag">Core ML</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">🧠</div>
+      <h3>AI &amp; Computer Vision</h3>
+      <div class="tags">
+        <span class="tag m">Google ML Kit</span><span class="tag m">MediaPipe</span>
+        <span class="tag m">Body Tracking</span><span class="tag m">Hand Gestures</span>
+        <span class="tag m">Spatial AI</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">🔥</div>
+      <h3>Backend &amp; Realtime</h3>
+      <div class="tags">
+        <span class="tag g">Firebase</span><span class="tag g">Firestore</span>
+        <span class="tag g">Realtime DB</span><span class="tag g">Socket.io</span>
+        <span class="tag g">Remote Config</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">💳</div>
+      <h3>Payments &amp; Subscriptions</h3>
+      <div class="tags">
+        <span class="tag">StoreKit</span><span class="tag">RevenueCat</span>
+        <span class="tag">Razorpay</span><span class="tag">In-App Purchases</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">🎮</div>
+      <h3>Third-Party &amp; Gaming</h3>
+      <div class="tags">
+        <span class="tag m">Alamofire</span><span class="tag m">Twilio SDK</span>
+        <span class="tag m">Agora SDK</span><span class="tag m">Unity Integration</span>
+        <span class="tag m">Video / Audio</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">📊</div>
+      <h3>Analytics &amp; Cloud</h3>
+      <div class="tags">
+        <span class="tag g">Firebase Analytics</span>
+        <span class="tag g">Crashlytics</span>
+        <span class="tag g">MS Clarity</span><span class="tag g">AppMetrica</span>
+        <span class="tag g">iCloud Sync</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">🏗️</div>
+      <h3>Architecture</h3>
+      <div class="tags">
+        <span class="tag">MVC</span><span class="tag">MVVM</span>
+        <span class="tag">Code Review</span><span class="tag">Team Lead</span>
+      </div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-glyph">🗺️</div>
+      <h3>Maps &amp; Navigation</h3>
+      <div class="tags">
+        <span class="tag m">Google Maps</span><span class="tag m">Apple Maps</span>
+        <span class="tag m">Mapbox</span><span class="tag m">Real-time Tracking</span>
+        <span class="tag m">Geolocation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ EXPERIENCE -->
+<section class="section" id="experience" style="position:relative;overflow:hidden;">
+  <div class="wm" style="font-size:clamp(5rem,12vw,12rem);">JOURNEY</div>
+  <div class="eyebrow">Career journey</div>
+  <h2 class="sec-h2">Work <em>Experience</em></h2>
   <div class="timeline">
 
-    <!-- Let's Nurture -->
+    <!-- Current: Vasundhara 2 -->
     <div class="t-item">
-      <div class="t-dot"></div>
-      <div class="t-card">
-
-        <div class="t-head">
-          <span class="t-role">Jr. iOS Developer</span>
-          <span class="t-badge">Jun 2022 – Oct 2023</span>
+      <div class="t-node"></div>
+      <div class="t-card tilt-card" data-tilt>
+        <div class="tilt-inner">
+          <div class="t-top">
+            <span class="t-role">iOS Developer + AI Engineer</span>
+            <span class="t-period">Jun 2026 – Present</span>
+          </div>
+          <div class="t-company">Vasundhara Infotech LLP · Surat, Gujarat</div>
+          <ul class="t-bullets">
+            <li>Working on innovative product-based apps combining iOS and Artificial Intelligence.</li>
+            <li>Developing Live AR Area Measurement using ARKit, Core ML, and computer vision.</li>
+            <li>Building AI-powered mobile experiences with object detection and spatial understanding.</li>
+            <li>Researching and integrating AI models to enhance product capabilities.</li>
+            <li>Creating scalable apps focused on real-world problems and intelligent solutions.</li>
+          </ul>
         </div>
-
-        <div class="t-company">Let's Nurture Infotech Pvt. Ltd. · Ahmedabad, Gujarat</div>
-
-        <ul class="t-list">
-          <li>Developed and maintained iOS applications using Swift and UIKit.</li>
-          <li>Worked on customer and driver ride-sharing applications.</li>
-          <li>Integrated Mapbox for navigation and real-time ride tracking.</li>
-          <li>Implemented Firestore-based real-time data management.</li>
-          <li>Worked on background location tracking and app lifecycle handling.</li>
-          <li>Collaborated with backend and design teams to deliver production-ready applications.</li>
-        </ul>
-
       </div>
     </div>
-
-
-    <!-- Vasundhara First Experience -->
-    <div class="t-item">
-      <div class="t-dot"></div>
-      <div class="t-card">
-
-        <div class="t-head">
-          <span class="t-role">iOS Developer</span>
-          <span class="t-badge">Oct 2023 – Nov 2024</span>
-        </div>
-
-        <div class="t-company">Vasundhara Infotech LLP · Surat, Gujarat</div>
-
-        <ul class="t-list">
-          <li>Worked on multiple client and product-based iOS applications.</li>
-          <li>Developed scalable iOS applications using Swift, UIKit, and SwiftUI.</li>
-          <li>Implemented API integrations, third-party SDKs, and custom UI components.</li>
-          <li>Worked on application architecture, performance improvements, and feature development.</li>
-          <li>Collaborated with cross-functional teams to deliver quality mobile solutions.</li>
-        </ul>
-
-      </div>
-    </div>
-
 
     <!-- StudioKrew -->
     <div class="t-item">
-      <div class="t-dot"></div>
-      <div class="t-card">
-
-        <div class="t-head">
-          <span class="t-role">Team Lead &amp; Sr. iOS Developer</span>
-          <span class="t-badge">Jan 2025 – 04 April 2026</span>
+      <div class="t-node"></div>
+      <div class="t-card tilt-card" data-tilt>
+        <div class="tilt-inner">
+          <div class="t-top">
+            <span class="t-role">Team Lead &amp; Sr. iOS Developer</span>
+            <span class="t-period">Jan 2025 – Apr 2026</span>
+          </div>
+          <div class="t-company">StudioKrew · New Delhi, India</div>
+          <ul class="t-bullets">
+            <li>Led iOS architecture decisions, code reviews, and mentored junior developers.</li>
+            <li>Built the HealthSy ecosystem – user, doctor, pharmacy, and delivery partner apps.</li>
+            <li>Integrated Firebase, Socket.io, Agora SDK, payments, analytics, and more.</li>
+            <li>Worked on AI/CV features using Google ML Kit and MediaPipe.</li>
+            <li>Implemented advanced gesture recognition, body tracking, and Unity integration.</li>
+          </ul>
         </div>
-
-        <div class="t-company">StudioKrew · New Delhi, India</div>
-
-        <ul class="t-list">
-          <li>Led iOS development activities including architecture decisions, code reviews, and mentoring developers.</li>
-          <li>Worked on product-based applications focused on healthcare, real-time services, and scalable experiences.</li>
-          <li>Developed HealthSy ecosystem applications for users, doctors, pharmacies, and delivery partners.</li>
-          <li>Built applications using Swift, SwiftUI, UIKit, and MVVM architecture.</li>
-          <li>Integrated Firebase, Socket.io, Agora SDK, payment systems, analytics, and third-party services.</li>
-          <li>Worked on AI and computer vision features using Google ML Kit and MediaPipe.</li>
-          <li>Implemented advanced features including gesture recognition, tracking, and Unity integration.</li>
-        </ul>
-
       </div>
     </div>
 
-
-    <!-- Current Vasundhara -->
+    <!-- Vasundhara First -->
     <div class="t-item">
-      <div class="t-dot"></div>
-      <div class="t-card">
-
-        <div class="t-head">
-          <span class="t-role">iOS Developer + AI Engineer</span>
-          <span class="t-badge">01 June 2026 – Present</span>
+      <div class="t-node"></div>
+      <div class="t-card tilt-card" data-tilt>
+        <div class="tilt-inner">
+          <div class="t-top">
+            <span class="t-role">iOS Developer</span>
+            <span class="t-period">Oct 2023 – Nov 2024</span>
+          </div>
+          <div class="t-company">Vasundhara Infotech LLP · Surat, Gujarat</div>
+          <ul class="t-bullets">
+            <li>Developed scalable iOS apps using Swift, UIKit, and SwiftUI for multiple clients.</li>
+            <li>Implemented API integrations, third-party SDKs, and custom UI components.</li>
+            <li>Improved app architecture and performance across multiple products.</li>
+          </ul>
         </div>
+      </div>
+    </div>
 
-        <div class="t-company">Vasundhara Infotech LLP · Surat, Gujarat</div>
-
-        <ul class="t-list">
-          <li>Working on innovative product-based applications combining iOS development and Artificial Intelligence.</li>
-          <li>Developing products like Live AR Area Measurement using ARKit, Core ML, and computer vision technologies.</li>
-          <li>Building AI-powered mobile experiences with object detection, spatial understanding, and automation.</li>
-          <li>Working with Swift, SwiftUI, UIKit, ARKit, Core ML, and modern iOS frameworks.</li>
-          <li>Researching and integrating AI models to improve product capabilities.</li>
-          <li>Creating scalable applications focused on real-world user problems and intelligent solutions.</li>
-        </ul>
-
+    <!-- Let's Nurture -->
+    <div class="t-item">
+      <div class="t-node"></div>
+      <div class="t-card tilt-card" data-tilt>
+        <div class="tilt-inner">
+          <div class="t-top">
+            <span class="t-role">Jr. iOS Developer</span>
+            <span class="t-period">Jun 2022 – Oct 2023</span>
+          </div>
+          <div class="t-company">Let's Nurture Infotech Pvt. Ltd. · Ahmedabad</div>
+          <ul class="t-bullets">
+            <li>Built and maintained iOS apps using Swift and UIKit for ride-sharing clients.</li>
+            <li>Integrated Mapbox for real-time navigation and ride tracking.</li>
+            <li>Implemented Firestore-based real-time data and background location handling.</li>
+          </ul>
+        </div>
       </div>
     </div>
 
   </div>
 </section>
 
-  <!-- APPS -->
-  <section id="apps">
-    <div class="sec-eyebrow">Published work</div>
-    <h2 class="sec-title">Apps on the <em>App Store</em></h2>
-    <div class="apps-grid">
+<!-- ============================================================ APPS -->
+<section class="section section-alt" id="apps" style="position:relative;overflow:hidden;">
+  <div class="wm" style="font-size:clamp(6rem,15vw,14rem);">APPS</div>
+  <div class="eyebrow">Published work</div>
+  <h2 class="sec-h2">Apps on the <em>App Store</em></h2>
+  <div class="apps-grid">
 
-      <a href="https://apps.apple.com/gh/app/healthsy-buy-medicines-online/id1631978908" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/17/37/97/1737970a-a750-a49e-6699-75c5d927b628/Placeholder.mill/400x400bb-75.webp" alt="HealthSy User App" loading="lazy" /></div>
-          <div><div class="app-name">HealthSy – User App</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">A comprehensive healthcare ecosystem for buying medicines online, booking consultations, and managing health.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/healthsy-for-partner-doctors/id1636618041" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/8a/7b/fd/8a7bfd82-1443-c898-fe3f-d5a60ead0403/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Doctor App" loading="lazy" /></div>
-          <div><div class="app-name">HealthSy – Doctor App</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">Doctor-facing partner app for managing online and in-clinic consultations with integrated Agora video calling.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/healthsy-pharmacy-partner/id6746318738" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/9b/81/ce/9b81ce8a-6530-2ab2-a5d2-3dc3ba6baa45/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Pharmacy Partner" loading="lazy" /></div>
-          <div><div class="app-name">HealthSy – Pharmacy</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">Full-scale pharmacy partner app built from scratch with SwiftUI to manage medicine orders and inventory.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/healthsy-delivery-partner-app/id6745000429" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/6d/3e/90/6d3e9030-4769-003d-22de-1285cf3c804c/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Delivery Partner" loading="lazy" /></div>
-          <div><div class="app-name">HealthSy – Delivery</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">Delivery partner app for managing medicine deliveries with real-time tracking and status updates.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-            <a href="https://apps.apple.com/in/app/healthsy-for-hhsp/id1641893606" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/7c/7b/0f/7c7b0f43-1f45-b499-7908-872c7e4b5a5f/AppIcon-0-0-1x_U007emarketing-0-10-0-85-220.png/400x400ia-75.webp" alt="HealthSy - HSSP Services" loading="lazy" /></div>
-          <div><div class="app-name">HealthSy - HSSP Services</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">A platform connecting home healthcare providers with new patients beyond geographical boundaries to grow their practice effortlessly.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/gps-geotag-map-camera-tagofy/id6453854362" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/8c/34/7f/8c347f86-89e2-a976-daa1-e03f84798beb/Placeholder.mill/400x400bb-75.webp" alt="Tagofy GPS Camera" loading="lazy" /></div>
-          <div><div class="app-name">Tagofy – GPS Camera</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">Custom camera app with Photo, Video, QR Code, and Timelapse modes plus GPS geotagging on every shot.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/party-blaster/id6479249838" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4f/9c/bb/4f9cbb2c-8f67-8660-f722-b894be433981/AppIcon-0-0-1x_U007epad-0-0-sRGB-85-220.png/400x400ia-75.webp" alt="Party Blaster Game" loading="lazy" /></div>
-          <div><div class="app-name">Party Blaster – Game</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">A 4-in-1 gaming app built with SpriteKit featuring body/hand tracking and a unique nose detection mechanic.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-      <a href="https://apps.apple.com/in/app/correct-spelling-checker/id1481028375" target="_blank" rel="noopener" class="app-card">
-        <div class="app-header">
-          <div class="app-img"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/40/41/bc/4041bc19-8eb6-b930-78b3-08027fc6fd86/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.jpeg/400x400ia-75.webp" alt="Correct Spelling Checker" loading="lazy" /></div>
-          <div><div class="app-name">Spelling Checker</div><div class="app-store-badge">App Store</div></div>
-        </div>
-        <div class="app-desc">A utility app for checking and correcting spellings, helping users communicate with confidence every day.</div>
-        <div class="app-link">
-          <span class="app-link-text">View on App Store →</span>
-          <div class="app-arrow">↗</div>
-        </div>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="sec-eyebrow">Let's connect</div>
-    <h2 class="sec-title">Get In <em>Touch</em></h2>
-    <div class="contact-wrapper">
-      <div class="c-items">
-        <a href="mailto:swapnilparmar39@gmail.com" class="c-item">
-          <div class="c-icon-wrap">✉️</div>
-          <div>
-            <div class="c-lbl">Email</div>
-            <div class="c-val">swapnilparmar39@gmail.com</div>
-          </div>
-        </a>
-        <a href="tel:+917990884216" class="c-item">
-          <div class="c-icon-wrap">📞</div>
-          <div>
-            <div class="c-lbl">Phone</div>
-            <div class="c-val">+91 79908 84216</div>
-          </div>
-        </a>
-        <a href="https://www.linkedin.com/in/swapnil-parmar-11134322a/" target="_blank" class="c-item">
-          <div class="c-icon-wrap">💼</div>
-          <div>
-            <div class="c-lbl">LinkedIn</div>
-            <div class="c-val">swapnil-christian</div>
-          </div>
-        </a>
-        <div class="c-item" style="cursor:default;">
-          <div class="c-icon-wrap">📍</div>
-          <div>
-            <div class="c-lbl">Location</div>
-            <div class="c-val">Anand, Gujarat – 388 450</div>
-          </div>
-        </div>
+    <a href="https://apps.apple.com/gh/app/healthsy-buy-medicines-online/id1631978908" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/17/37/97/1737970a-a750-a49e-6699-75c5d927b628/Placeholder.mill/400x400bb-75.webp" alt="HealthSy User" loading="lazy"/></div>
+        <div><div class="app-nm">HealthSy – User App</div><div class="app-badge">App Store</div></div>
       </div>
-      <div class="c-cta">
-        <div class="c-avatar">SC</div>
-        <h3>Swapnil Christian</h3>
-        <p>iOS Developer passionate about building high-quality apps with rich, seamless user experiences. Open to exciting opportunities and collaborations.</p>
-        <div class="open-pill">
-          <div class="pill-dot"></div>
-          Open to Work
-        </div>
-        <a href="mailto:swapnilparmar39@gmail.com" class="btn-primary" style="position:relative;z-index:1">
-          <span>📧 Send a Message</span>
-        </a>
+      <div class="app-desc">A comprehensive healthcare ecosystem for buying medicines, booking consultations, and managing health.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/healthsy-for-partner-doctors/id1636618041" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/8a/7b/fd/8a7bfd82-1443-c898-fe3f-d5a60ead0403/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Doctor" loading="lazy"/></div>
+        <div><div class="app-nm">HealthSy – Doctor App</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">Doctor-facing partner app for managing online and in-clinic consultations with Agora video calling.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/healthsy-pharmacy-partner/id6746318738" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/9b/81/ce/9b81ce8a-6530-2ab2-a5d2-3dc3ba6baa45/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Pharmacy" loading="lazy"/></div>
+        <div><div class="app-nm">HealthSy – Pharmacy</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">Full-scale pharmacy partner app built from scratch with SwiftUI for medicine orders and inventory.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/healthsy-delivery-partner-app/id6745000429" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/6d/3e/90/6d3e9030-4769-003d-22de-1285cf3c804c/Placeholder.mill/400x400bb-75.webp" alt="HealthSy Delivery" loading="lazy"/></div>
+        <div><div class="app-nm">HealthSy – Delivery</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">Delivery partner app with real-time order tracking, routing, and live status updates.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/healthsy-for-hhsp/id1641893606" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/7c/7b/0f/7c7b0f43-1f45-b499-7908-872c7e4b5a5f/AppIcon-0-0-1x_U007emarketing-0-10-0-85-220.png/400x400ia-75.webp" alt="HealthSy HSSP" loading="lazy"/></div>
+        <div><div class="app-nm">HealthSy – HSSP Services</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">A platform connecting home healthcare providers with new patients beyond geographical boundaries.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/gps-geotag-map-camera-tagofy/id6453854362" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/8c/34/7f/8c347f86-89e2-a976-daa1-e03f84798beb/Placeholder.mill/400x400bb-75.webp" alt="Tagofy GPS Camera" loading="lazy"/></div>
+        <div><div class="app-nm">Tagofy – GPS Camera</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">Custom camera app with Photo, Video, QR, and Timelapse modes plus GPS geotagging on every shot.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/party-blaster/id6479249838" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4f/9c/bb/4f9cbb2c-8f67-8660-f722-b894be433981/AppIcon-0-0-1x_U007epad-0-0-sRGB-85-220.png/400x400ia-75.webp" alt="Party Blaster" loading="lazy"/></div>
+        <div><div class="app-nm">Party Blaster – Game</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">A 4-in-1 gaming app built with SpriteKit featuring body/hand tracking and a unique nose detection mechanic.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+    <a href="https://apps.apple.com/in/app/correct-spelling-checker/id1481028375" target="_blank" rel="noopener" class="app-card tilt-card">
+      <div class="app-head">
+        <div class="app-icon"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/40/41/bc/4041bc19-8eb6-b930-78b3-08027fc6fd86/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.jpeg/400x400ia-75.webp" alt="Spelling Checker" loading="lazy"/></div>
+        <div><div class="app-nm">Spelling Checker</div><div class="app-badge">App Store</div></div>
+      </div>
+      <div class="app-desc">A utility app for checking and correcting spellings, helping users write with confidence every day.</div>
+      <div class="app-footer">
+        <span class="app-link-txt">View on App Store →</span>
+        <div class="app-arr">↗</div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ============================================================ CONTACT -->
+<section class="section" id="contact">
+  <div class="eyebrow">Let's connect</div>
+  <h2 class="sec-h2">Get In <em>Touch</em></h2>
+  <div class="contact-layout">
+    <div class="c-links">
+      <a href="mailto:swapnilparmar39@gmail.com" class="c-link">
+        <div class="c-ico">✉️</div>
+        <div><div class="c-lbl">Email</div><div class="c-val">swapnilparmar39@gmail.com</div></div>
+      </a>
+      <a href="tel:+917990884216" class="c-link">
+        <div class="c-ico">📞</div>
+        <div><div class="c-lbl">Phone</div><div class="c-val">+91 79908 84216</div></div>
+      </a>
+      <a href="https://www.linkedin.com/in/swapnil-parmar-11134322a/" target="_blank" class="c-link">
+        <div class="c-ico">💼</div>
+        <div><div class="c-lbl">LinkedIn</div><div class="c-val">swapnil-christian</div></div>
+      </a>
+      <div class="c-link" style="cursor:default;">
+        <div class="c-ico">📍</div>
+        <div><div class="c-lbl">Location</div><div class="c-val">Anand, Gujarat – 388 450</div></div>
       </div>
     </div>
-  </section>
+    <div class="c-box">
+      <div class="c-avatar">SC</div>
+      <h3>Swapnil Christian</h3>
+      <p>iOS Developer passionate about building high-quality apps with rich, seamless user experiences. Open to exciting opportunities and collaborations.</p>
+      <div class="open-badge"><div class="ob-dot"></div>Open to Work</div>
+      <a href="mailto:swapnilparmar39@gmail.com" class="btn-p" style="position:relative;z-index:1;">
+        <span>📧 Send a Message</span>
+      </a>
+    </div>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="f-logo">SC<span>.</span></div>
-    <p>© 2025 Swapnil Christian · iOS Developer</p>
-    <p>swapnilparmar39@gmail.com</p>
-  </footer>
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">SC<span>.</span></div>
+  <small>© 2025 Swapnil Christian · iOS Developer</small>
+  <small>swapnilparmar39@gmail.com</small>
+</footer>
 
-  <script>
-    /* CURSOR */
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
+<script>
+/* ============================================================
+   CURSOR
+============================================================ */
+const dot = document.getElementById('c-dot');
+const ring = document.getElementById('c-ring');
+let mx=0,my=0,rx=0,ry=0,animId;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.left=mx+'px'; dot.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.c-link').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+});
 
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top = my + 'px';
-    });
+/* ============================================================
+   CANVAS BG — animated aurora mesh
+============================================================ */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H,pts=[];
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+  }
+  resize(); window.addEventListener('resize',resize);
 
-    function animRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      requestAnimationFrame(animRing);
+  class Blob {
+    constructor(){this.reset();}
+    reset(){
+      this.x=Math.random()*W; this.y=Math.random()*H;
+      this.r=Math.random()*350+150;
+      this.vx=(Math.random()-0.5)*0.4; this.vy=(Math.random()-0.5)*0.4;
+      this.hue=Math.random()<0.5?230:320;
+      this.sat=Math.random()*40+60;
+      this.alpha=Math.random()*0.12+0.04;
     }
-    animRing();
-
-    document.querySelectorAll('a, button').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.width = '20px'; cursor.style.height = '20px';
-        ring.style.width = '60px'; ring.style.height = '60px';
-      });
-      el.addEventListener('mouseleave', () => {
-        cursor.style.width = '12px'; cursor.style.height = '12px';
-        ring.style.width = '40px'; ring.style.height = '40px';
-      });
-    });
-
-    /* PARTICLES */
-    const particlesEl = document.getElementById('particles');
-    const colors = ['#00d4ff','#7c3aed','#ec4899','#10b981','#f97316'];
-    for (let i = 0; i < 25; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const size = Math.random() * 4 + 1;
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      p.style.cssText = `
-        width:${size}px; height:${size}px;
-        background:${color};
-        left:${Math.random()*100}%;
-        animation-duration:${Math.random()*15+10}s;
-        animation-delay:${Math.random()*-20}s;
-        opacity:0.4;
-        box-shadow: 0 0 ${size*3}px ${color};
-      `;
-      particlesEl.appendChild(p);
+    step(){
+      this.x+=this.vx; this.y+=this.vy;
+      if(this.x<-this.r||this.x>W+this.r||this.y<-this.r||this.y>H+this.r)this.reset();
     }
+    draw(){
+      const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+      g.addColorStop(0,`hsla(${this.hue},${this.sat}%,55%,${this.alpha})`);
+      g.addColorStop(1,`hsla(${this.hue},${this.sat}%,55%,0)`);
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+    }
+  }
 
-    /* MOBILE MENU */
-    function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
-    function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+  const blobs=[...Array(8)].map(()=>new Blob());
 
-    /* INTERSECTION OBSERVER */
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const delay = e.target.getAttribute('data-delay') || 0;
-          setTimeout(() => e.target.classList.add('vis'), parseInt(delay));
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.1 });
+  /* thin grid lines */
+  function drawGrid(){
+    ctx.strokeStyle='rgba(91,79,255,0.03)';
+    ctx.lineWidth=1;
+    const sz=80;
+    for(let x=0;x<W;x+=sz){
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+    }
+    for(let y=0;y<H;y+=sz){
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+  }
 
-    document.querySelectorAll('.skill-card').forEach((el, i) => {
-      el.setAttribute('data-delay', i * 70); io.observe(el);
-    });
-    document.querySelectorAll('.app-card').forEach((el, i) => {
-      el.setAttribute('data-delay', i * 80); io.observe(el);
-    });
-    document.querySelectorAll('.t-item').forEach((el, i) => {
-      el.setAttribute('data-delay', i * 200); io.observe(el);
-    });
-    document.querySelectorAll('.c-item').forEach((el, i) => {
-      el.setAttribute('data-delay', i * 100); io.observe(el);
-    });
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    drawGrid();
+    blobs.forEach(b=>{ b.step(); b.draw(); });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
 
-    /* COUNT UP ANIMATION for stats */
-    const statNums = document.querySelectorAll('.stat-num');
-    const statObs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const el = e.target;
-          const target = parseInt(el.textContent);
-          if (isNaN(target)) return;
-          const suffix = el.textContent.replace(/[0-9]/g,'');
-          let current = 0;
-          const step = target / 30;
-          const interval = setInterval(() => {
-            current = Math.min(current + step, target);
-            el.textContent = Math.floor(current) + suffix;
-            if (current >= target) clearInterval(interval);
-          }, 40);
-          statObs.unobserve(el);
-        }
-      });
-    }, { threshold: 0.5 });
-    statNums.forEach(el => statObs.observe(el));
+/* ============================================================
+   PHONE PARALLAX TILT
+============================================================ */
+const phoneScene = document.getElementById('phone-scene');
+if(phoneScene){
+  document.addEventListener('mousemove',e=>{
+    const cx=window.innerWidth/2, cy=window.innerHeight/2;
+    const rx=((e.clientY-cy)/cy)*-14;
+    const ry=((e.clientX-cx)/cx)*14;
+    phoneScene.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+}
 
-    /* PARALLAX ORBS on mouse */
-    const hero = document.querySelector('.hero');
-    hero.addEventListener('mousemove', e => {
-      const rect = hero.getBoundingClientRect();
-      const cx = (e.clientX - rect.left) / rect.width - 0.5;
-      const cy = (e.clientY - rect.top) / rect.height - 0.5;
-      document.querySelector('.orb1').style.transform = `translate(${cx * 40}px, ${cy * 30}px) scale(1)`;
-      document.querySelector('.orb2').style.transform = `translate(${cx * -30}px, ${cy * -20}px) scale(1)`;
-      document.querySelector('.orb3').style.transform = `translate(${cx * 60}px, ${cy * 40}px) scale(1)`;
-    });
+/* ============================================================
+   TICKER
+============================================================ */
+const skills=[
+  {icon:'📱',name:'Swift'},{icon:'🎨',name:'SwiftUI'},
+  {icon:'🖼️',name:'UIKit'},{icon:'🔥',name:'Firebase'},
+  {icon:'🧠',name:'ML Kit'},{icon:'🗺️',name:'Mapbox'},
+  {icon:'💳',name:'RevenueCat'},{icon:'📡',name:'Socket.io'},
+  {icon:'🎮',name:'SpriteKit'},{icon:'🤖',name:'ARKit'},
+  {icon:'📊',name:'Crashlytics'},{icon:'🎯',name:'Core ML'},
+  {icon:'🏗️',name:'MVVM'},{icon:'🎙️',name:'Agora SDK'},
+  {icon:'🛡️',name:'StoreKit'},{icon:'☁️',name:'iCloud'},
+];
+const ticker=document.getElementById('ticker');
+[...skills,...skills].forEach(s=>{
+  const el=document.createElement('div');
+  el.className='ticker-item';
+  el.innerHTML=`<span class="t-icon">${s.icon}</span>${s.name}`;
+  ticker.appendChild(el);
+});
 
-    /* NAV SCROLL EFFECT */
-    window.addEventListener('scroll', () => {
-      const nav = document.querySelector('nav');
-      if (window.scrollY > 80) {
-        nav.style.background = 'rgba(2,4,10,0.95)';
-      } else {
-        nav.style.background = 'rgba(2,4,10,0.7)';
-      }
-    });
-  </script>
+/* ============================================================
+   NAV
+============================================================ */
+window.addEventListener('scroll',()=>{
+  document.getElementById('main-nav').classList.toggle('scrolled',window.scrollY>60);
+});
+function toggleNav(){
+  document.getElementById('mob-nav').classList.toggle('open');
+}
+
+/* ============================================================
+   INTERSECTION OBSERVER — card reveals
+============================================================ */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const delay=+e.target.dataset.delay||0;
+    setTimeout(()=>e.target.classList.add('vis'),delay);
+    io.unobserve(e.target);
+  });
+},{threshold:0.08});
+
+document.querySelectorAll('.sk-card').forEach((el,i)=>{el.dataset.delay=i*60;io.observe(el);});
+document.querySelectorAll('.app-card').forEach((el,i)=>{el.dataset.delay=i*70;io.observe(el);});
+document.querySelectorAll('.t-item').forEach((el,i)=>{el.dataset.delay=i*160;io.observe(el);});
+document.querySelectorAll('.c-link').forEach((el,i)=>{el.dataset.delay=i*100;io.observe(el);});
+
+/* ============================================================
+   COUNT-UP ANIMATION
+============================================================ */
+const countObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target;
+    const target=+el.dataset.target;
+    const suffix=el.textContent.replace(/\d/g,'');
+    let cur=0, steps=40;
+    const inc=target/steps;
+    const iv=setInterval(()=>{
+      cur=Math.min(cur+inc,target);
+      el.textContent=Math.floor(cur)+suffix;
+      if(cur>=target){ el.textContent=target+suffix; clearInterval(iv); }
+    },35);
+    countObs.unobserve(el);
+  });
+},{threshold:0.5});
+document.querySelectorAll('[data-target]').forEach(el=>{
+  el.textContent='0'; countObs.observe(el);
+});
+
+/* ============================================================
+   3D CARD TILT
+============================================================ */
+document.querySelectorAll('.tilt-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-0.5;
+    const y=(e.clientY-r.top)/r.height-0.5;
+    card.style.transform=`perspective(900px) rotateX(${-y*8}deg) rotateY(${x*8}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)';
+  });
+});
+</script>
 </body>
 </html>
